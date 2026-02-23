@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BIS Battle · Business Information Systems</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: linear-gradient(145deg, #0b1f2e 0%, #1a3a4f 100%);
+      font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 0;
+      padding: 12px;
+    }
+
+    .game-container {
+      width: 100%;
+      max-width: 880px;
+      background: rgba(255,255,255,0.08);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 48px;
+      padding: 28px 24px;
+      box-shadow: 0 25px 50px -8px rgba(0,0,0,0.6), inset 0 0 0 1px rgba(255,255,255,0.05);
+      transition: all 0.2s;
+    }
+
+    /* top bar with level and progress */
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(0, 20, 30, 0.7);
+      border-radius: 120px;
+      padding: 6px 16px 6px 10px;
+      margin-bottom: 24px;
+      border: 1px solid #2d5f7e;
+      box-shadow: inset 0 2px 3px #0a1a24;
+    }
+
+    .level-badge {
+      background: #00adb5;
+      color: #021117;
+      font-weight: 800;
+      padding: 8px 20px;
+      border-radius: 40px;
+      font-size: 1.1rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      box-shadow: 0 0 12px #5ee4e0;
+      border: 1px solid #a3f0ff;
+    }
+
+    .progress-wrapper {
+      flex: 1;
+      margin-left: 18px;
+      margin-right: 18px;
+      height: 16px;
+      background: #102b36;
+      border-radius: 30px;
+      overflow: hidden;
+      box-shadow: inset 0 2px 6px black;
+    }
+
+    .progress-fill {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, #fdc830, #f37335);
+      border-radius: 30px;
+      transition: width 0.3s ease-out;
+      box-shadow: 0 0 14px #ffb347;
+    }
+
+    .score-box {
+      background: #0f212b;
+      padding: 8px 22px;
+      border-radius: 60px;
+      border: 1px solid #3b7b97;
+      font-weight: 700;
+      color: #f6e9b2;
+      font-size: 1.4rem;
+      text-shadow: 0 0 8px gold;
+    }
+
+    /* name + subject screen overlay */
+    #registrationScreen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 30px 20px;
+      background: rgba(8, 25, 36, 0.95);
+      border-radius: 40px;
+      margin: 10px 0;
+      border: 2px solid #2b6f96;
+      backdrop-filter: blur(12px);
+    }
+
+    #registrationScreen h2 {
+      color: #d7f2ff;
+      font-size: 2.4rem;
+      margin-bottom: 24px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-shadow: 0 0 10px cyan;
+    }
+
+    .name-input {
+      background: #1e3f50;
+      border: 2px solid #40b9cf;
+      border-radius: 60px;
+      padding: 16px 28px;
+      width: 300px;
+      font-size: 1.3rem;
+      color: white;
+      text-align: center;
+      outline: none;
+      font-weight: 500;
+      margin-bottom: 28px;
+    }
+
+    .name-input::placeholder {
+      color: #a0c7da;
+    }
+
+    .subject-panel {
+      background: #0e2d3a;
+      border-radius: 50px;
+      padding: 24px 20px;
+      width: 100%;
+      max-width: 500px;
+      margin-bottom: 30px;
+      border: 1px solid #329bb5;
+    }
+
+    .subject-panel h3 {
+      color: #c6edf7;
+      text-align: center;
+      margin-bottom: 20px;
+      font-weight: 400;
+      font-size: 1.6rem;
+    }
+
+    .subject-options {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .subject-option {
+      background: #154754;
+      border: 2px solid #24738a;
+      border-radius: 40px;
+      padding: 14px 6px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: white;
+      text-align: center;
+      cursor: pointer;
+      transition: 0.1s;
+      box-shadow: 0 5px 0 #0b2b33;
+    }
+
+    .subject-option.selected {
+      background: #f3b33d;
+      border-color: #ffdd99;
+      color: #121212;
+      box-shadow: 0 0 20px #f3b33d;
+      transform: scale(1.02);
+    }
+
+    .subject-option:hover {
+      background: #2e7e96;
+    }
+
+    .btn-primary {
+      background: #00b0c8;
+      border: none;
+      border-radius: 60px;
+      padding: 16px 42px;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #02131f;
+      box-shadow: 0 0 20px #44e0ff;
+      cursor: pointer;
+      transition: 0.2s;
+      border: 1px solid white;
+      margin-top: 10px;
+    }
+
+    .btn-primary:hover {
+      background: #1ecbe3;
+      transform: scale(1.02);
+      box-shadow: 0 0 32px #7ff0ff;
+    }
+
+    /* quiz area */
+    #quizArea {
+      display: none;
+    }
+
+    .player-greeting {
+      color: #c7e9ff;
+      font-size: 1.3rem;
+      margin-bottom: 16px;
+      font-weight: 300;
+      padding-left: 10px;
+    }
+
+    .player-greeting strong {
+      color: #fedb7d;
+      font-weight: 700;
+    }
+
+    .question-box {
+      background: #0a262f;
+      border-radius: 40px;
+      padding: 30px 28px;
+      margin-bottom: 30px;
+      border: 1px solid #208dad;
+      box-shadow: inset 0 4px 12px #04131b, 0 8px 18px black;
+    }
+
+    .question-text {
+      color: #f7f7f7;
+      font-size: 1.8rem;
+      font-weight: 600;
+      line-height: 1.3;
+      margin-bottom: 20px;
+      text-shadow: 0 2px 5px black;
+    }
+
+    .timer-section {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .timer-circle {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      background: #0c1e28;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.1rem;
+      font-weight: 800;
+      color: #fcd36a;
+      border: 3px solid #308fab;
+      box-shadow: 0 0 20px #5fa3b5;
+      transition: all 0.2s;
+    }
+
+    .timer-critical {
+      border-color: #ff5252;
+      color: #ffaaaa;
+      background: #2c0e0e;
+    }
+
+    .bonus-indicator {
+      background: #1b434f;
+      border-radius: 30px;
+      padding: 8px 20px;
+      color: #b9f3ff;
+      font-weight: 500;
+    }
+
+    .options-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-top: 30px;
+    }
+
+    .option-btn {
+      background: #153d4b;
+      border: 2px solid #26778b;
+      border-radius: 60px;
+      padding: 18px 14px;
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: white;
+      text-align: left;
+      transition: 0.1s ease;
+      cursor: pointer;
+      box-shadow: 0 8px 0 #08212b;
+    }
+
+    .option-btn:hover:not(:disabled) {
+      background: #226f85;
+      border-color: #8ad4e6;
+      transform: translateY(-2px);
+      box-shadow: 0 10px 0 #08212b;
+    }
+
+    .option-btn:active:not(:disabled) {
+      transform: translateY(4px);
+      box-shadow: 0 4px 0 #08212b;
+    }
+
+    .option-btn.selected-correct {
+      background: #219b7a;
+      border-color: #b1ffcf;
+    }
+
+    .option-btn.selected-wrong {
+      background: #ac3e3e;
+      border-color: #ffa2a2;
+      opacity: 0.9;
+    }
+
+    .option-btn:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+
+    .streak-fire {
+      font-size: 1.3rem;
+      background: #361d0f;
+      display: inline-block;
+      padding: 6px 18px;
+      border-radius: 60px;
+      border: 1px solid #e69d41;
+      color: #ffc285;
+      margin-left: 15px;
+    }
+
+    /* end screen */
+    #endScreen {
+      display: none;
+      background: #0b222c;
+      border-radius: 40px;
+      padding: 34px 28px;
+      border: 3px solid #247b98;
+      margin-top: 10px;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin: 30px 0;
+      color: #fff;
+    }
+
+    .stat-card {
+      background: #143542;
+      border-radius: 28px;
+      padding: 20px;
+      text-align: center;
+      box-shadow: inset 0 -3px 0 #1a5f72;
+    }
+
+    .stat-value {
+      font-size: 3rem;
+      font-weight: 800;
+      color: #fee484;
+    }
+
+    .badge-champion {
+      background: #fcb045;
+      color: #131313;
+      font-size: 1.8rem;
+      padding: 18px;
+      border-radius: 80px;
+      text-align: center;
+      font-weight: 900;
+      margin: 20px 0;
+      box-shadow: 0 0 40px gold;
+    }
+
+    .weak-strong {
+      font-size: 1.2rem;
+      background: #0a2d38;
+      padding: 16px;
+      border-radius: 28px;
+    }
+
+    .btn-playagain {
+      background: #41b0c2;
+      border: none;
+      border-radius: 60px;
+      padding: 18px 40px;
+      font-size: 1.8rem;
+      font-weight: bold;
+      margin-top: 30px;
+      cursor: pointer;
+    }
+
+    footer {
+      margin-top: 16px;
+      color: #5f8a9c;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+<div class="game-container" id="gameContainer">
+
+  <!-- registration screen (name + subject) -->
+  <div id="registrationScreen">
+    <h2>⚔️ BIS BATTLE ⚔️</h2>
+    <input type="text" id="playerNameInput" class="name-input" placeholder="Enter your name" maxlength="24" autofocus>
+    
+    <div class="subject-panel">
+      <h3>📚 Select BIS subject</h3>
+      <div class="subject-options" id="subjectOptions">
+        <div class="subject-option" data-subject="Management Information Systems">MIS</div>
+        <div class="subject-option" data-subject="Database Management Systems">Databases</div>
+        <div class="subject-option" data-subject="Business Analytics">Analytics</div>
+        <div class="subject-option" data-subject="ERP">ERP</div>
+        <div class="subject-option" data-subject="E-Commerce">E-Commerce</div>
+        <div class="subject-option" data-subject="IT Project Management">IT Project</div>
+        <div class="subject-option" data-subject="Cybersecurity in Business">Cybersecurity</div>
+        <div class="subject-option" data-subject="System Analysis & Design">SA&D</div>
+        <div class="subject-option" data-subject="Cloud Computing">Cloud</div>
+      </div>
+    </div>
+
+    <button class="btn-primary" id="startGameBtn">START BATTLE</button>
+    <footer style="margin-top: 30px;">10 questions · 15 sec each · BIS course</footer>
+  </div>
+
+  <!-- main quiz interface (hidden initially) -->
+  <div id="quizArea">
+    <div class="top-bar">
+      <span class="level-badge" id="levelDisplay">Beginner</span>
+      <div class="progress-wrapper"><div class="progress-fill" id="progressFill"></div></div>
+      <span class="score-box" id="scoreDisplay">0</span>
+    </div>
+
+    <div class="player-greeting" id="greeting"></div>
+
+    <div class="question-box">
+      <div class="question-text" id="questionText">Loading question...</div>
+      <div class="timer-section">
+        <div class="timer-circle" id="timerCircle">15</div>
+        <div class="bonus-indicator">⚡ fast bonus +5</div>
+        <span class="streak-fire" id="streakDisplay">🔥 0 streak</span>
+      </div>
+      <div class="options-grid" id="optionsContainer"></div>
+    </div>
+  </div>
+
+  <!-- end screen -->
+  <div id="endScreen">
+    <h2 style="color:#d4f0ff; font-size: 2.2rem;">🏁 BATTLE REPORT</h2>
+    <div id="endContent"></div>
+  </div>
+</div>
+
+<script>
+  (function() {
+    // ---------- AUDIO (browser beeps) ----------
+    function playCorrectSound() {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = 800;
+      gain.gain.value = 0.15;
+      osc.connect(gain).connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.15);
+    }
+    function playWrongSound() {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.value = 240;
+      gain.gain.value = 0.12;
+      osc.connect(gain).connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.2);
+    }
+
+    // ---------- BIS QUESTION BANK (by subject) ----------
+    const questionBank = {
+      "Management Information Systems": [
+        { question: "MIS primarily supports which level of management?", options: ["Operational", "Middle", "Top", "All levels"], correct: 3 },
+        { question: "Which system provides routine information for operational decisions?", options: ["DSS", "TPS", "ESS", "MIS"], correct: 1 },
+        { question: "MIS generates reports from ________ data.", options: ["unstructured", "transaction", "external", "real-time"], correct: 1 },
+        { question: "A decision support system is part of MIS. (True/False)", options: ["True", "False"], correct: 0 },
+        { question: "Which output is typical for MIS?", options: ["summary reports", "payroll", "social media feed", "email"], correct: 0 }
+      ],
+      "Database Management Systems": [
+        { question: "Which language is used to query relational databases?", options: ["Java", "SQL", "Python", "HTML"], correct: 1 },
+        { question: "A foreign key is used to:", options: ["encrypt data", "link two tables", "create index", "define data type"], correct: 1 },
+        { question: "ACID properties ensure:", options: ["fast queries", "data integrity", "user access", "backup"], correct: 1 },
+        { question: "NoSQL databases are always better than SQL.", options: ["True", "False"], correct: 1 },
+        { question: "Which is an example of a DBMS?", options: ["MySQL", "Apache", "Linux", "Excel"], correct: 0 }
+      ],
+      "Business Analytics": [
+        { question: "Which analysis predicts future outcomes?", options: ["Descriptive", "Diagnostic", "Predictive", "Prescriptive"], correct: 2 },
+        { question: "Data visualization is part of business analytics.", options: ["True", "False"], correct: 0 },
+        { question: "What does 'big data' often include?", options: ["Variety", "Velocity", "Volume", "All of above"], correct: 3 },
+        { question: "A common tool for analytics is:", options: ["Tableau", "WordPress", "Photoshop", "Zoom"], correct: 0 },
+        { question: "Regression is used for:", options: ["classification", "clustering", "forecasting", "sorting"], correct: 2 }
+      ],
+      "ERP": [
+        { question: "ERP stands for:", options: ["Enterprise Resource Planning", "Efficient Resource Program", "Extended Reporting Protocol", "External Rotation Process"], correct: 0 },
+        { question: "Which module is common in ERP?", options: ["Finance", "Inventory", "HR", "All of these"], correct: 3 },
+        { question: "ERP integrates all departments.", options: ["True", "False"], correct: 0 },
+        { question: "SAP is a provider of ERP systems.", options: ["True", "False"], correct: 0 },
+        { question: "ERP implementation is simple and fast.", options: ["True", "False"], correct: 1 }
+      ],
+      "E-Commerce": [
+        { question: "B2C stands for:", options: ["Business to Consumer", "Business to Client", "Back to Customer", "Basic to Consumer"], correct: 0 },
+        { question: "Which is an e-commerce platform?", options: ["Shopify", "Excel", "PowerPoint", "Slack"], correct: 0 },
+        { question: "SSL in e-commerce provides:", options: ["speed", "security", "inventory", "payment gateway"], correct: 1 },
+        { question: "Drop-shipping is a retail fulfillment method.", options: ["True", "False"], correct: 0 },
+        { question: "C2C example: eBay", options: ["True", "False"], correct: 0 }
+      ],
+      "IT Project Management": [
+        { question: "What is a Gantt chart used for?", options: ["scheduling", "coding", "testing", "budgeting"], correct: 0 },
+        { question: "Waterfall model is iterative.", options: ["True", "False"], correct: 1 },
+        { question: "Which is a project management methodology?", options: ["Agile", "SQL", "Python", "HTML"], correct: 0 },
+        { question: "PMI stands for Project Management Institute.", options: ["True", "False"], correct: 0 },
+        { question: "Critical path method helps to:", options: ["find shortest time", "debug code", "design UI", "estimate cost"], correct: 0 }
+      ],
+      "Cybersecurity in Business": [
+        { question: "Phishing attacks often use:", options: ["fake emails", "encryption", "firewalls", "antivirus"], correct: 0 },
+        { question: "Ransomware is a type of malware.", options: ["True", "False"], correct: 0 },
+        { question: "Multi-factor authentication adds:", options: ["security", "speed", "cost", "complexity"], correct: 0 },
+        { question: "Firewall protects against all cyber attacks.", options: ["True", "False"], correct: 1 },
+        { question: "Which is a strong password practice?", options: ["123456", "password", "P@ssw0rd!23", "admin"], correct: 2 }
+      ],
+      "System Analysis & Design": [
+        { question: "SDLC stands for:", options: ["Software Development Life Cycle", "System Design Life Cycle", "System Development Life Cycle", "none"], correct: 2 },
+        { question: "Which phase gathers requirements?", options: ["Design", "Analysis", "Implementation", "Maintenance"], correct: 1 },
+        { question: "UML is used for:", options: ["modeling", "coding", "testing", "deployment"], correct: 0 },
+        { question: "Waterfall is a type of SDLC model.", options: ["True", "False"], correct: 0 },
+        { question: "Prototyping is part of agile.", options: ["True", "False"], correct: 0 }
+      ],
+      "Cloud Computing": [
+        { question: "IaaS stands for:", options: ["Infrastructure as a Service", "Internet as a Service", "Integration as a Service", "None"], correct: 0 },
+        { question: "AWS is a cloud provider.", options: ["True", "False"], correct: 0 },
+        { question: "Which is a cloud deployment model?", options: ["Public", "Private", "Hybrid", "All of these"], correct: 3 },
+        { question: "SaaS example: Google Docs", options: ["True", "False"], correct: 0 },
+        { question: "Vertical scaling means adding more machines.", options: ["True", "False"], correct: 1 }
+      ]
+    };
+
+    // UI elements
+    const regScreen = document.getElementById('registrationScreen');
+    const quizArea = document.getElementById('quizArea');
+    const endScreen = document.getElementById('endScreen');
+    const startBtn = document.getElementById('startGameBtn');
+    const nameInput = document.getElementById('playerNameInput');
+    const subjectOptions = document.querySelectorAll('.subject-option');
+    const greetingSpan = document.getElementById('greeting');
+    const questionText = document.getElementById('questionText');
+    const optionsDiv = document.getElementById('optionsContainer');
+    const timerCircle = document.getElementById('timerCircle');
+    const progressFill = document.getElementById('progressFill');
+    const scoreDisplay = document.getElementById('scoreDisplay');
+    const levelDisplay = document.getElementById('levelDisplay');
+    const streakSpan = document.getElementById('streakDisplay');
+    const endContent = document.getElementById('endContent');
+
+    // state
+    let playerName = '';
+    let selectedSubject = 'Management Information Systems'; // default
+    let currentQuestions = [];
+    let currentIndex = 0;
+    let score = 0;
+    let totalPossibleBase = 0; // each correct gives 10
+    let wrongCount = 0;
+    let streak = 0;
+    let timerInterval = null;
+    let timeLeft = 15;
+    let canAnswer = true;
+    let questionStartTime = null;
+    let answeredQuestions = 0;
+    let topicPerformance = {}; // track subject
+
+    // subject selection highlight
+    subjectOptions.forEach(opt => {
+      opt.addEventListener('click', () => {
+        subjectOptions.forEach(o => o.classList.remove('selected'));
+        opt.classList.add('selected');
+        selectedSubject = opt.getAttribute('data-subject');
+      });
+    });
+    // default select first (MIS)
+    subjectOptions[0].classList.add('selected');
+
+    // helpers
+    function updateLevel() {
+      if (score >= 150) levelDisplay.innerText = 'Expert';
+      else if (score >= 70) levelDisplay.innerText = 'Intermediate';
+      else levelDisplay.innerText = 'Beginner';
+    }
+
+    function updateProgress() {
+      const percent = (currentIndex / currentQuestions.length) * 100;
+      progressFill.style.width = percent + '%';
+    }
+
+    function stopTimer() {
+      if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+    }
+
+    function grantStreakBonus() {
+      if (streak === 3) {
+        score += 15;
+        streak = 1; // reset streak but keep bonus given
+        playCorrectSound(); // extra cheer
+      }
+    }
+
+    // load question from pre-selected array
+    function loadQuestion() {
+      if (currentIndex >= currentQuestions.length) {
+        endGame();
+        return;
+      }
+      canAnswer = true;
+      const q = currentQuestions[currentIndex];
+      questionText.innerText = q.question;
+      optionsDiv.innerHTML = '';
+      q.options.forEach((opt, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'option-btn';
+        btn.innerText = opt;
+        btn.dataset.idx = idx;
+        btn.addEventListener('click', () => handleAnswer(idx));
+        optionsDiv.appendChild(btn);
+      });
+
+      timeLeft = 15;
+      timerCircle.innerText = timeLeft;
+      timerCircle.classList.remove('timer-critical');
+      questionStartTime = Date.now();
+      stopTimer();
+      timerInterval = setInterval(() => {
+        timeLeft -= 1;
+        timerCircle.innerText = timeLeft;
+        if (timeLeft <= 5) timerCircle.classList.add('timer-critical');
+        if (timeLeft <= 0) {
+          stopTimer();
+          if (canAnswer) handleTimeout();
+        }
+      }, 1000);
+    }
+
+    function handleTimeout() {
+      if (!canAnswer) return;
+      canAnswer = false;
+      stopTimer();
+      playWrongSound();
+      const q = currentQuestions[currentIndex];
+      score -= 5; if (score < 0) score = 0;
+      scoreDisplay.innerText = score;
+      wrongCount++;
+      answeredQuestions++;
+      // track topic (subject)
+      if (!topicPerformance[selectedSubject]) topicPerformance[selectedSubject] = { correct: 0, total: 0 };
+      topicPerformance[selectedSubject].total += 1;
+
+      streak = 0;
+      streakSpan.innerText = `🔥 0 streak`;
+
+      document.querySelectorAll('.option-btn').forEach(btn => btn.disabled = true);
+      setTimeout(() => {
+        currentIndex++;
+        updateProgress();
+        if (currentIndex < currentQuestions.length) loadQuestion(); else endGame();
+      }, 1000);
+    }
+
+    function handleAnswer(selectedIdx) {
+      if (!canAnswer) return;
+      canAnswer = false;
+      stopTimer();
+      const q = currentQuestions[currentIndex];
+      const isCorrect = (selectedIdx === q.correct);
+      const timeTaken = (Date.now() - questionStartTime) / 1000;
+      const fastBonus = (timeTaken <= 8 && isCorrect) ? 5 : 0;
+
+      if (!topicPerformance[selectedSubject]) topicPerformance[selectedSubject] = { correct: 0, total: 0 };
+      topicPerformance[selectedSubject].total += 1;
+
+      if (isCorrect) {
+        playCorrectSound();
+        score += 10;
+        totalPossibleBase += 10;
+        if (fastBonus) { score += 5; }
+        topicPerformance[selectedSubject].correct += 1;
+        streak++;
+        if (streak === 3) grantStreakBonus();
+      } else {
+        playWrongSound();
+        score -= 5; if (score < 0) score = 0;
+        wrongCount++;
+        streak = 0;
+      }
+
+      answeredQuestions++;
+      scoreDisplay.innerText = score;
+      streakSpan.innerText = `🔥 ${streak} streak`;
+
+      // highlight correct/wrong
+      document.querySelectorAll('.option-btn').forEach((btn, idx) => {
+        btn.disabled = true;
+        if (idx === q.correct) btn.classList.add('selected-correct');
+        else if (idx === selectedIdx && !isCorrect) btn.classList.add('selected-wrong');
+      });
+
+      setTimeout(() => {
+        currentIndex++;
+        updateProgress();
+        if (currentIndex < currentQuestions.length) loadQuestion(); else endGame();
+      }, 1000);
+    }
+
+    function endGame() {
+      stopTimer();
+      quizArea.style.display = 'none';
+      endScreen.style.display = 'block';
+
+      const correctCount = totalPossibleBase / 10;
+      const accuracy = answeredQuestions ? Math.round((correctCount / answeredQuestions) * 100) : 0;
+      
+      // strongest/weakest (just one subject selected, so it's the same but we keep format)
+      let strongTopic = selectedSubject, weakTopic = selectedSubject;
+      if (topicPerformance[selectedSubject]) {
+        let perc = (topicPerformance[selectedSubject].correct / topicPerformance[selectedSubject].total) * 100;
+        if (perc < 50) weakTopic = selectedSubject + ' (needs practice)';
+        else strongTopic = selectedSubject;
+      }
+
+      const rank = score >= 150 ? 'Expert' : (score >= 70 ? 'Skilled' : 'Beginner');
+      const isChampion = accuracy > 80;
+
+      let html = `
+        <div class="stats-grid">
+          <div class="stat-card"><span class="stat-value">${score}</span><br>Total Score</div>
+          <div class="stat-card"><span class="stat-value">${accuracy}%</span><br>Accuracy</div>
+        </div>
+        <div style="color:white; font-size:1.8rem; margin:10px 0;">🏅 ${rank}</div>
+        <div class="weak-strong">📘 subject: ${selectedSubject}<br>💪 correct: ${topicPerformance[selectedSubject]?.correct || 0}/${answeredQuestions}</div>
+      `;
+      if (isChampion) {
+        html += `<div class="badge-champion">🏆 BIS CHAMPION 🏆</div>`;
+        setTimeout(() => { simpleConfetti(); }, 200);
+      }
+      html += `<button class="btn-playagain" id="playAgainBtn">⚔️ PLAY AGAIN ⚔️</button>`;
+      endContent.innerHTML = html;
+      document.getElementById('playAgainBtn').addEventListener('click', resetGame);
+    }
+
+    function simpleConfetti() {
+      for (let i=0; i<30; i++) {
+        let conf = document.createElement('div');
+        conf.innerText = '🎉';
+        conf.style.position = 'fixed'; conf.style.left = Math.random()*100 + '%'; conf.style.top = '-20px';
+        conf.style.fontSize = (20+Math.random()*20)+'px'; conf.style.pointerEvents = 'none'; conf.style.zIndex = 9999;
+        document.body.appendChild(conf);
+        let anim = conf.animate([
+          { transform: 'translateY(0) rotate(0deg)', opacity: 1 },
+          { transform: `translateY(${window.innerHeight+100}px) rotate(${Math.random()*360}deg)`, opacity: 0.7 }
+        ], { duration: 1500 + Math.random()*1000, easing: 'cubic-bezier(0.2,0.8,0.3,1)' });
+        anim.onfinish = () => conf.remove();
+      }
+    }
+
+    function resetGame() {
+      endScreen.style.display = 'none';
+      regScreen.style.display = 'flex';
+      quizArea.style.display = 'none';
+      // reset state
+      score = 0; totalPossibleBase = 0; wrongCount = 0; streak = 0; answeredQuestions = 0; topicPerformance = {};
+      scoreDisplay.innerText = '0';
+      streakSpan.innerText = '🔥 0 streak';
+      levelDisplay.innerText = 'Beginner';
+      progressFill.style.width = '0%';
+      nameInput.value = '';
+      // re-highlight default subject
+      subjectOptions.forEach(o => o.classList.remove('selected'));
+      subjectOptions[0].classList.add('selected');
+      selectedSubject = 'Management Information Systems';
+    }
+
+    // start battle
+    startBtn.addEventListener('click', () => {
+      const name = nameInput.value.trim();
+      if (name === '') {
+        alert('Please enter your name!');
+        return;
+      }
+      playerName = name;
+      // generate 10 questions from selected subject (repeat if necessary)
+      const bank = questionBank[selectedSubject] || questionBank["Management Information Systems"];
+      currentQuestions = [];
+      for (let i = 0; i < 10; i++) {
+        // pick random from bank (with possible repeats, but it's okay for demo)
+        const q = bank[Math.floor(Math.random() * bank.length)];
+        currentQuestions.push({ ...q }); // copy
+      }
+
+      regScreen.style.display = 'none';
+      quizArea.style.display = 'block';
+      endScreen.style.display = 'none';
+      greetingSpan.innerHTML = `🎯 ready, <strong>${playerName}</strong> · ${selectedSubject}`;
+
+      currentIndex = 0;
+      score = 0; totalPossibleBase = 0; wrongCount = 0; streak = 0; answeredQuestions = 0;
+      topicPerformance = {};
+      scoreDisplay.innerText = '0';
+      streakSpan.innerText = '🔥 0 streak';
+      levelDisplay.innerText = 'Beginner';
+      updateProgress();
+      loadQuestion();
+    });
+
+    // Enter key
+    nameInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') startBtn.click(); });
+  })();
+</script>
+</body>
+</html>
